@@ -55,11 +55,11 @@ pub fn unpack_string(input: &str) -> String {
     unpacked
 }
 
-pub fn compress_to_file(input: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
     let reader = BufReader::new(input_file);
 
-    let mut output_file = File::create("output.txt")?;
+    let mut output_file = File::create(output_file_name)?;
 
     for line in reader.lines() {
         let line = line?;
@@ -70,11 +70,11 @@ pub fn compress_to_file(input: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn unpack_from_file(input: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
     let reader = BufReader::new(input_file);
 
-    let mut output_file = File::create("output.txt")?;
+    let mut output_file = File::create(output_file_name)?;
 
     for line in reader.lines() {
         let line = line?;
