@@ -1,24 +1,26 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader, Write};
+use std::env;
 
-use compact_sequence::compress_string;
+use compact_sequence::{
+    compress_to_file,
+    unpack_from_file,
+}; 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Open the input file
-    let input_file = File::open("input.txt")?;
-    let reader = BufReader::new(input_file);
+    let args: Vec<String> = env::args().collect();
+    
+    if args.len() < 2 {
+        println!("Usage: cargo run <input_file_name> -u");
+        return Ok(());
+    }
 
-    // Open the output file
-    let mut output_file = File::create("output.txt")?;
+    let input_file_name = &args[1];
 
-    // Process the data and write to the output file
-    for line in reader.lines() {
-        let line = line?;
-        let compressed_line = compress_string(&line);
-        writeln!(output_file, "{}", compressed_line)?;
+    if args.len() >= 3 && args[2] == "-u" {
+        unpack_from_file(input_file_name)?;
+    } else {
+        compress_to_file(input_file_name)?;
     }
 
     println!("File processing completed!");
     Ok(())
 }
-
