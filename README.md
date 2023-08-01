@@ -1,3 +1,3 @@
 # compact_sequence
 
-[![CI/CD](https://github.com/HappyPotatoman/compact_sequence/actions/workflows/compact_sequence.yml/badge.svg)](https://github.com/HappyPotatoman/compact_sequence/actions/workflows/compact_sequence.yml)
+[![CI/CD](https://github.com/HappyPotatoman/compact_sequence/actions/workflows/healthcheck.yml/badge.svg)](https://github.com/HappyPotatoman/compact_sequence/actions/workflows/healthcheck.yml)
