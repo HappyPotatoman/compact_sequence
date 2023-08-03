@@ -3,6 +3,7 @@ use std::io::Write;
 use std::io::BufReader;
 use std::io::BufRead;
 
+pub mod processors;
 
 pub fn compress_string(input: &str) -> String {
     let mut compressed = String::new();
