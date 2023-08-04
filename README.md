@@ -4,6 +4,10 @@
 
 This is meant as a attempt to reduce mostly nucleotide/peptide sequence storage space.
 
+# Changelog
+
+0.2.1: Added support for undefined nucleotides 'N'
+
 0.2.0: The new version features some major refactors and is in no way production ready nor is it backward compatible. The compress logic has changed completely. It is now based on an ASCII mapping for each possible basic triplet made up of the basic four nucleotides present in DNA (A, G, C, T). This way we can compress arbitrary sequences to a theoretical 1/3 of the file size. As a side note error handling was implemented partially, so the program is more stable and descriptive.
 
   - TODO: Test out actual sizes of files after compression.
