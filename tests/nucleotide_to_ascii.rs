@@ -4,7 +4,7 @@ use compact_sequence::encoders::nucleotide_to_ascii;
 fn test_create_encoding_map() {
     let map = nucleotide_to_ascii::create_encoding_map();
 
-    assert_eq!(map.len(), 88);
+    assert_eq!(map.len(), 155);
 
     let bases = ['A', 'G', 'C', 'T'];
 
@@ -22,14 +22,14 @@ fn test_create_encoding_map() {
         let singlet = base1.to_string();
         assert!(map.contains_key(&singlet));
     }
-    assert!(map.contains_key("I"));
 
     let values: std::collections::HashSet<_> = map.values().collect();
     assert_eq!(values.len(), map.len());
 
     for value in map.values() {
         let chars: Vec<char> = value.chars().collect();
-        assert!(chars.len() == 1);
+        let value_string = chars.iter().collect::<String>();
+        assert!(chars.len() == 1 || value_string.starts_with("!"));
         let ascii_value = chars[0] as u32;
         assert!(ascii_value >= 32 && ascii_value <= 126);
     }
@@ -44,13 +44,20 @@ fn test_create_decoding_map() {
     assert_eq!(decoding_map.get(&encoding_map["AGT"]), Some(&"AGT".to_string()));
     assert_eq!(decoding_map.get(&encoding_map["GCC"]), Some(&"GCC".to_string()));
 
+    assert_eq!(decoding_map.get(&encoding_map["ANA"]), Some(&"ANA".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["AGN"]), Some(&"AGN".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["NNN"]), Some(&"NNN".to_string()));
+
     assert_eq!(decoding_map.get(&encoding_map["AG"]), Some(&"AG".to_string()));
     assert_eq!(decoding_map.get(&encoding_map["CT"]), Some(&"CT".to_string()));
+
+    assert_eq!(decoding_map.get(&encoding_map["NG"]), Some(&"NG".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["CN"]), Some(&"CN".to_string()));
 
     assert_eq!(decoding_map.get(&encoding_map["A"]), Some(&"A".to_string()));
     assert_eq!(decoding_map.get(&encoding_map["G"]), Some(&"G".to_string()));
 
-    assert_eq!(decoding_map.get(&encoding_map["I"]), Some(&"I".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["N"]), Some(&"N".to_string()));
 
     assert_eq!(decoding_map.get("z"), None);
 }
