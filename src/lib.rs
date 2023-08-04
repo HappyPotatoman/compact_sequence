@@ -11,6 +11,7 @@ use encoders::nucleotide_to_ascii::{ENCODING_MAP, DECODING_MAP};
 use errors::CompressionError;
 
 pub fn compress_string(input: &str) -> Result<String, CompressionError> {
+    let input = input.to_uppercase();
     let mut compressed = String::new();
 
     for chunk in input.as_bytes().chunks(3) {
