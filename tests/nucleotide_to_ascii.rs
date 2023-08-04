@@ -34,3 +34,23 @@ fn test_create_encoding_map() {
         assert!(ascii_value >= 32 && ascii_value <= 126);
     }
 }
+
+#[test]
+fn test_create_decoding_map() {
+    let encoding_map = nucleotide_to_ascii::create_encoding_map();
+    let decoding_map = nucleotide_to_ascii::create_decoding_map();
+
+    assert_eq!(decoding_map.get(&encoding_map["AAA"]), Some(&"AAA".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["AGT"]), Some(&"AGT".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["GCC"]), Some(&"GCC".to_string()));
+
+    assert_eq!(decoding_map.get(&encoding_map["AG"]), Some(&"AG".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["CT"]), Some(&"CT".to_string()));
+
+    assert_eq!(decoding_map.get(&encoding_map["A"]), Some(&"A".to_string()));
+    assert_eq!(decoding_map.get(&encoding_map["G"]), Some(&"G".to_string()));
+
+    assert_eq!(decoding_map.get(&encoding_map["I"]), Some(&"I".to_string()));
+
+    assert_eq!(decoding_map.get("z"), None);
+}

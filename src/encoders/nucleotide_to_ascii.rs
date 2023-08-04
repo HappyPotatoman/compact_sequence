@@ -4,7 +4,7 @@ pub fn create_encoding_map() -> HashMap<String, String> {
     let mut encoding_map = HashMap::new();
 
     let bases = ['A', 'G', 'C', 'T'];
-    let mut counter = 32; // Start from ' ' (32)
+    let mut counter = 33; 
 
     for &base1 in &bases {
         for &base2 in &bases {
@@ -35,10 +35,20 @@ pub fn create_encoding_map() -> HashMap<String, String> {
         counter += 1;
     }
 
-    // Insert special singlet
     let key = "I".to_string();
     let encoded_value = std::char::from_u32(counter).unwrap_or('_').to_string();
     encoding_map.insert(key, encoded_value);
 
     encoding_map
+}
+
+pub fn create_decoding_map() -> HashMap<String, String> {
+    let encoding_map = create_encoding_map();
+    let mut decoding_map = HashMap::new();
+
+    for (key, value) in encoding_map {
+        decoding_map.insert(value, key);
+    }
+
+    decoding_map
 }

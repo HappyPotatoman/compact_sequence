@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             compress_to_file(input_path, &output_path)?;
         }
     } else if input_path.ends_with(".fasta") {
-        // Add support for fasta processing here if required
+        // Add support for fasta processing here if required - in the future
     } else if input_path.ends_with('/') || input_path.ends_with('\\') {
         processors::file_processing::process_directory(input_path)?;
     } else {
