@@ -32,4 +32,5 @@ fn test_process_directory() {
         }
     }
     //TODO: Cleanup the output directories after the tests run.
+    let _ = fs::remove_dir_all(output_dir);
 }
