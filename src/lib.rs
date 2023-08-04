@@ -4,6 +4,7 @@ use std::io::BufReader;
 use std::io::BufRead;
 
 pub mod processors;
+pub mod encoders;
 
 pub fn compress_string(input: &str) -> String {
     let mut compressed = String::new();
