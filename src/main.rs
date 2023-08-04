@@ -16,14 +16,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input_path = &args[1];
 
     if input_path.ends_with(".txt") {
-        let output_path = format!("{}_output.txt", input_path);
+        let output_path = format!("out_{}", input_path);
         if args.len() >= 3 && args[2] == "-u" {
             unpack_from_file(input_path, &output_path)?;
         } else {
             compress_to_file(input_path, &output_path)?;
         }
     } else if input_path.ends_with(".fasta") {
-        // Add support for fasta processing here if required - in the future
+        // Add support for fasta processing here if required
     } else if input_path.ends_with('/') || input_path.ends_with('\\') {
         processors::file_processing::process_directory(input_path)?;
     } else {

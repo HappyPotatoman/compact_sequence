@@ -6,7 +6,7 @@ fn test_create_encoding_map() {
 
     assert_eq!(map.len(), 155);
 
-    let bases = ['A', 'G', 'C', 'T'];
+    let bases = ['A', 'G', 'C', 'T', 'N'];
 
     for &base1 in &bases {
         for &base2 in &bases {
