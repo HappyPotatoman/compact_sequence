@@ -3,8 +3,8 @@ name: CI/CD
 on:
   push:
     paths:
-      - "src"
-      - "tests"
+      - "src/**"
+      - "tests/**"
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
