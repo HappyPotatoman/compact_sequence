@@ -28,9 +28,21 @@ pub fn compress_string(input: &str) -> Result<String, CompressionError> {
 
 pub fn unpack_string(input: &str) -> Result<String, CompressionError> {
     let mut unpacked = String::new();
+    let mut previous_was_exclamation = false;
 
     for ch in input.chars() {
-        let key = ch.to_string();
+        if ch == '!' {
+            previous_was_exclamation = true;
+            continue;
+        }
+
+        let key = if previous_was_exclamation {
+            previous_was_exclamation = false;
+            format!("!{}", ch)
+        } else {
+            ch.to_string()
+        };
+
         if let Some(decoded_value) = DECODING_MAP.get(&key) {
             unpacked.push_str(decoded_value);
         } else {
@@ -40,6 +52,7 @@ pub fn unpack_string(input: &str) -> Result<String, CompressionError> {
 
     Ok(unpacked)
 }
+
 
 pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
