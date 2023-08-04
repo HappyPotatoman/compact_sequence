@@ -31,6 +31,5 @@ fn test_process_directory() {
             assert_eq!(output_content_normalized, expected_content_normalized);
         }
     }
-    //TODO: Cleanup the output directories after the tests run.
     let _ = fs::remove_dir_all(output_dir);
 }
