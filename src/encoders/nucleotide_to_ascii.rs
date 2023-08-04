@@ -43,6 +43,21 @@ pub fn create_encoding_map() -> HashMap<String, String> {
     let key = "I".to_string();
     let encoded_value = std::char::from_u32(counter).unwrap_or('_').to_string();
     encoding_map.insert(key, encoded_value);
+    counter += 1;
+
+    let key = "NNN".to_string();
+    let encoded_value = std::char::from_u32(counter).unwrap_or('_').to_string();
+    encoding_map.insert(key, encoded_value);
+    counter += 1;
+    
+    let key = "NN".to_string();
+    let encoded_value = std::char::from_u32(counter).unwrap_or('_').to_string();
+    encoding_map.insert(key, encoded_value);
+    counter += 1;
+
+    let key = "N".to_string();
+    let encoded_value = std::char::from_u32(counter).unwrap_or('_').to_string();
+    encoding_map.insert(key, encoded_value);
 
     encoding_map
 }

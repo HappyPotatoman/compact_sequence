@@ -4,7 +4,7 @@ use compact_sequence::encoders::nucleotide_to_ascii;
 fn test_create_encoding_map() {
     let map = nucleotide_to_ascii::create_encoding_map();
 
-    assert_eq!(map.len(), 85);
+    assert_eq!(map.len(), 88);
 
     let bases = ['A', 'G', 'C', 'T'];
 
