@@ -1,5 +1,10 @@
 use std::collections::HashMap;
 
+lazy_static::lazy_static! {
+        pub static ref ENCODING_MAP: HashMap<String, String> = create_encoding_map();
+        pub static ref DECODING_MAP: HashMap<String, String> = create_decoding_map();
+    }
+
 pub fn create_encoding_map() -> HashMap<String, String> {
     let mut encoding_map = HashMap::new();
 

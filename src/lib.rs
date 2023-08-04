@@ -3,58 +3,41 @@ use std::io::Write;
 use std::io::BufReader;
 use std::io::BufRead;
 
-pub mod processors;
 pub mod encoders;
+pub mod errors;
+pub mod processors;
 
-pub fn compress_string(input: &str) -> String {
+use encoders::nucleotide_to_ascii::{ENCODING_MAP, DECODING_MAP};
+use errors::CompressionError;
+
+pub fn compress_string(input: &str) -> Result<String, CompressionError> {
     let mut compressed = String::new();
-    let mut current_char = '_';
-    let mut char_count = 0;
 
-    for ch in input.chars() {
-        if ch == current_char {
-            char_count += 1;
+    for chunk in input.as_bytes().chunks(3) {
+        let key = String::from_utf8(chunk.to_vec()).unwrap();
+        if let Some(encoded_value) = ENCODING_MAP.get(&key) {
+            compressed.push_str(&encoded_value.to_string());
         } else {
-            if char_count > 1 {
-                compressed.push_str(&format!("{}{}", current_char, char_count));
-            } else if char_count == 1 {
-                compressed.push(current_char);
-            }
-            current_char = ch;
-            char_count = 1;
+            return Err(CompressionError::UnknownSequence(key));
         }
     }
 
-    if char_count > 1 {
-        compressed.push_str(&format!("{}{}", current_char, char_count));
-    } else if char_count == 1 {
-        compressed.push(current_char);
-    }
-
-    compressed
+    Ok(compressed)
 }
 
-pub fn unpack_string(input: &str) -> String {
+pub fn unpack_string(input: &str) -> Result<String, CompressionError> {
     let mut unpacked = String::new();
-    let mut i = 0;
 
-    while i < input.len() {
-        let ch = input.chars().nth(i).unwrap();
-        i += 1;
-        
-        let mut num_chars = String::new();
-        while i < input.len() && input.chars().nth(i).unwrap().is_digit(10) {
-            num_chars.push(input.chars().nth(i).unwrap());
-            i += 1;
-        }
-
-        let count: usize = num_chars.parse().unwrap_or(1);
-
-        for _ in 0..count {
-            unpacked.push(ch);
+    for ch in input.chars() {
+        let key = ch.to_string();
+        if let Some(decoded_value) = DECODING_MAP.get(&key) {
+            unpacked.push_str(decoded_value);
+        } else {
+            return Err(CompressionError::UnknownCharacter(ch));
         }
     }
-    unpacked
+
+    Ok(unpacked)
 }
 
 pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -65,7 +48,7 @@ pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<d
 
     for line in reader.lines() {
         let line = line?;
-        let compressed_line = compress_string(&line);
+        let compressed_line = compress_string(&line)?;
         writeln!(output_file, "{}", compressed_line)?;
     }
 
@@ -80,7 +63,7 @@ pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<d
 
     for line in reader.lines() {
         let line = line?;
-        let unpacked_line = unpack_string(&line);
+        let unpacked_line = unpack_string(&line)?;
         writeln!(output_file, "{}", unpacked_line)?;
     }
 

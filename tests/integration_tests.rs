@@ -1,35 +1,32 @@
-use std::fs;
-use std::path::Path;
-use compact_sequence::processors::file_processing;
+use std::io::BufReader;
+use std::io::BufRead;
+use std::io::Write;
+use std::fs::File;
 
 #[test]
-fn test_process_directory() {
-    let test_dir = "tests/test_data";
-    let test_input_dir = format!("{}/test_inputs", test_dir);
-    let output_dir = format!("{}_outputs", &test_input_dir);
+fn test_compress_and_unpack() {
+    let test_input = "AAAGGGCCCTTT";
+    let input_file_name = "test_input.txt";
+    let compressed_file_name = "compress_and_unpack_test_compressed.txt";
+    let unpacked_file_name = "compress_and_unpack_test_unpacked.txt";
 
-    file_processing::process_directory(&test_input_dir).unwrap();
-
-    for entry in fs::read_dir(output_dir.clone()).unwrap() {
-        let entry = entry.unwrap();
-        let input_file = entry.path();
-
-        if let Some(file_name) = input_file.file_name() {
-            let output_file = format!("{}/{}", output_dir, file_name.to_str().unwrap());
-            let expected_output_file = format!(
-                "{}/test_expected_outputs/{}", test_dir, file_name.to_str().unwrap()
-            );
-            
-            println!("{:?}", &expected_output_file);
-            assert!(Path::new(&output_file).exists());
-
-            let output_content = fs::read_to_string(&output_file).unwrap();
-            let expected_content = fs::read_to_string(&expected_output_file).unwrap();
-            let output_content_normalized = output_content.replace("\r\n", "\n");
-            let expected_content_normalized = expected_content.replace("\r\n", "\n");
-
-            assert_eq!(output_content_normalized, expected_content_normalized);
-        }
+    {
+        let mut file = File::create(input_file_name).unwrap();
+        writeln!(file, "{}", test_input).unwrap();
     }
-    let _ = fs::remove_dir_all(output_dir);
+
+
+    compact_sequence::compress_to_file(input_file_name, compressed_file_name).unwrap();
+    
+    compact_sequence::unpack_from_file(compressed_file_name, unpacked_file_name).unwrap();
+
+    let unpacked_file = File::open(unpacked_file_name).unwrap();
+    let reader = BufReader::new(unpacked_file);
+    let unpacked: Vec<_> = reader.lines().map(|line| line.unwrap()).collect();
+
+    assert_eq!(test_input, unpacked.join(""));
+
+    std::fs::remove_file(compressed_file_name).unwrap();
+    std::fs::remove_file(unpacked_file_name).unwrap();
+    std::fs::remove_file(input_file_name).unwrap();
 }
