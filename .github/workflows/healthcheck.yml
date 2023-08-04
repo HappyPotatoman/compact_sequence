@@ -23,17 +23,3 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Install grcov
-      run: |
-        cargo install grcov
-    - name: Collect coverage data
-      run: |
-        grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --ignore-dir "/*" -o lcov.info
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
