@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
 fn test_compress_to_file() {
-    let input_strings = vec!["AAAA", "AC", "AAAACCCGTT", "AGGGGCCCCTTTTAA"];
+    let input_strings = vec!["AAAA", "AC", "AAAACCCGTT", "AGGGGCCCCTTTTAA",""];
     let input_file_name = "test_input_compress.txt";
     let mut input_file = File::create(input_file_name).unwrap();
     for s in &input_strings {
