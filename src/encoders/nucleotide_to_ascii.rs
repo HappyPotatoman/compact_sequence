@@ -17,7 +17,7 @@ pub fn create_encoding_map() -> HashMap<String, String> {
             for &base3 in &bases {
                 let triplet = [base1, base2, base3];
                 let key = triplet.iter().collect::<String>();
-                if key.contains('N') {
+                if key.contains('N') && key != "NNN" {
                     let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
                     encoding_map.insert(key, encoded_value);
                     n_counter += 1;
