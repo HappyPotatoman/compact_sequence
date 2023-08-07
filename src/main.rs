@@ -1,18 +1,39 @@
+use std::str::FromStr;
 use structopt::StructOpt;
+
 use compact_sequence::{
     compress_to_file,
     unpack_from_file,
 };
+
 mod processors;
 
-#[derive(StructOpt)]
+#[derive(Debug, StructOpt)]
+pub enum Mode {
+    RNA,
+    DNA,
+}
+
+impl FromStr for Mode {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "rna" => Ok(Mode::RNA),
+            "dna" => Ok(Mode::DNA),
+            _ => Err("Invalid mode"),
+        }
+    }
+}
+
+#[derive(Debug, StructOpt)]
 struct Opt {
     #[structopt(short, long)]
     input: String,
     #[structopt(short, long)]
     unpack: bool,
-    #[structopt(short, long, default_value = "dna", possible_values = &["RNA", "DNA"])]
-    mode: String,
+    #[structopt(short, long, default_value = "dna", possible_values = &["rna", "dna"])]
+    mode: Mode,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
