@@ -86,11 +86,6 @@ pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<d
 
 #[cfg(test)]
 mod tests {
-    use std::io::BufReader;
-    use std::io::BufRead;
-    use std::fs::File;
-    use std::io::Write;
-
     use super::*;
 
     #[test]
