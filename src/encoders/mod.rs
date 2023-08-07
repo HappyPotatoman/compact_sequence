@@ -1,1 +1,1 @@
-pub mod nucleotide_to_ascii;
+pub mod dna_to_ascii;

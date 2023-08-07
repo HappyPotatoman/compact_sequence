@@ -76,11 +76,11 @@ pub fn create_decoding_map() -> HashMap<String, String> {
 #[cfg(test)]
 mod tests {
 
-    use crate::encoders::nucleotide_to_ascii;
+    use crate::encoders::dna_to_ascii;
 
     #[test]
     fn test_create_encoding_map() {
-        let map = nucleotide_to_ascii::create_encoding_map();
+        let map = dna_to_ascii::create_encoding_map();
 
         assert_eq!(map.len(), 155);
 
@@ -115,8 +115,8 @@ mod tests {
 
     #[test]
     fn test_create_decoding_map() {
-        let encoding_map = nucleotide_to_ascii::create_encoding_map();
-        let decoding_map = nucleotide_to_ascii::create_decoding_map();
+        let encoding_map = dna_to_ascii::create_encoding_map();
+        let decoding_map = dna_to_ascii::create_decoding_map();
 
         assert_eq!(decoding_map.get(&encoding_map["AAA"]), Some(&"AAA".to_string()));
         assert_eq!(decoding_map.get(&encoding_map["AGT"]), Some(&"AGT".to_string()));

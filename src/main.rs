@@ -1,23 +1,29 @@
-use std::env;
+use structopt::StructOpt;
 use compact_sequence::{
     compress_to_file,
     unpack_from_file,
 };
 mod processors;
 
+#[derive(StructOpt)]
+struct Opt {
+    #[structopt(short, long)]
+    input: String,
+    #[structopt(short, long)]
+    unpack: bool,
+    #[structopt(short, long, default_value = "dna", possible_values = &["RNA", "DNA"])]
+    mode: String,
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 {
-        println!("Usage: cargo run <input_file_or_directory> [-u]");
-        return Ok(());
-    }
-
-    let input_path = &args[1];
+    let opt = Opt::from_args();
+    let input_path = &opt.input;
+    let mode= &opt.mode;
+    println!("Running in {:?} mode", mode);
 
     if input_path.ends_with(".txt") {
         let output_path = format!("out_{}", input_path);
-        if args.len() >= 3 && args[2] == "-u" {
+        if opt.unpack {
             unpack_from_file(input_path, &output_path)?;
         } else {
             compress_to_file(input_path, &output_path)?;

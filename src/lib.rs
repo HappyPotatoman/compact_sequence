@@ -6,7 +6,7 @@ pub mod encoders;
 pub mod errors;
 pub mod processors;
 
-use encoders::nucleotide_to_ascii::{ENCODING_MAP, DECODING_MAP};
+use encoders::dna_to_ascii::{ENCODING_MAP, DECODING_MAP};
 use errors::CompressionError;
 
 fn compress_string(input: &str) -> Result<String, CompressionError> {
