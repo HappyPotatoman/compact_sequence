@@ -1,7 +1,6 @@
+use rayon::prelude::*;
 use std::fs::File;
-use std::io::Write;
-use std::io::BufReader;
-use std::io::BufRead;
+use std::io::{BufReader, BufRead, Write, BufWriter};
 
 pub mod encoders;
 pub mod errors;
@@ -58,11 +57,14 @@ pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<d
     let input_file = File::open(input)?;
     let reader = BufReader::new(input_file);
 
-    let mut output_file = File::create(output_file_name)?;
+    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
+    let compressed_lines: Vec<_> = lines.par_iter()
+        .map(|line| compress_string(line))
+        .collect::<Result<_, _>>()?;
 
-    for line in reader.lines() {
-        let line = line?;
-        let compressed_line = compress_string(&line)?;
+    let mut output_file = BufWriter::new(File::create(output_file_name)?);
+
+    for compressed_line in compressed_lines {
         writeln!(output_file, "{}", compressed_line)?;
     }
 
@@ -70,16 +72,20 @@ pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<d
 }
 
 pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+
     let input_file = File::open(input)?;
-    let reader = BufReader::new(input_file);
+    let reader: Vec<_> = BufReader::new(input_file).lines().collect();
+    let output_file = File::create(output_file_name)?;
+    let mut writer = BufWriter::new(output_file);
 
-    let mut output_file = File::create(output_file_name)?;
-
-    for line in reader.lines() {
-        let line = line?;
-        let unpacked_line = unpack_string(&line)?;
-        writeln!(output_file, "{}", unpacked_line)?;
-    }
+    reader.par_iter()
+          .map(|line| {
+              let line = line.as_ref().unwrap();
+              unpack_string(&line)
+          })
+          .collect::<Result<Vec<_>, _>>()?
+          .into_iter()
+          .try_for_each(|unpacked_line| writeln!(writer, "{}", unpacked_line))?;
 
     Ok(())
 }
