@@ -1,6 +1,6 @@
 [package]
 name = "compact_sequence"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 
 [[test]]
@@ -12,3 +12,6 @@ walkdir = "2.3"
 rayon = "1.5"
 lazy_static = "1.4"
 structopt = "0.3"
+
+[dev-dependencies]
+tempfile = "3.2.0"

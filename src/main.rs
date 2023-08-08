@@ -13,6 +13,8 @@ struct Opt {
     #[structopt(short, long)]
     input: String,
     #[structopt(short, long)]
+    output: String,
+    #[structopt(short, long)]
     unpack: bool,
     #[structopt(short, long, default_value = "dna", possible_values = &["rna", "dna"])]
     mode: Mode,
@@ -21,6 +23,7 @@ struct Opt {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Opt::from_args();
     let input_path = &opt.input;
+    let output_path = &opt.output;
     let mode = &opt.mode;
     println!("Running in {:?} mode", mode);
 
@@ -34,7 +37,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else if input_path.ends_with(".fasta") {
         // Add support for fasta processing here if required
     } else if input_path.ends_with('/') || input_path.ends_with('\\') {
-        processors::file_processing::process_directory(input_path, &mode)?;
+        if opt.unpack {
+            processors::directory_processing::unpack_directory(input_path, &output_path, &mode)?;
+        } else {
+            processors::directory_processing::compress_directory(input_path, &output_path, &mode)?;
+        }
     } else {
         println!("Error: Unsupported file format or invalid path.");
         return Err("Unsupported file format or invalid path".into());
