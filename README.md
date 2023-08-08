@@ -8,6 +8,8 @@ usage cargo run -- <input_file or directory> <-u for unpacking compressed data>
 
 # Changelog
 
+0.3.1: Add support for RNA sequential data. Add better command line control with StructOpt.
+
 0.3.0: "NNN" is encoded with a single char to optimize space usage. Multithread processing of single files. Check performance benchmarks for details.
 
 0.2.1: Added support for undefined nucleotides 'N'.

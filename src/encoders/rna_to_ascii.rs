@@ -1,22 +1,22 @@
 use std::collections::HashMap;
 
 lazy_static::lazy_static! {
-    pub static ref DNA_ENCODING_MAP: std::collections::HashMap<String, String> = dna_encoding_map();
-    pub static ref DNA_DECODING_MAP: std::collections::HashMap<String, String> = dna_decoding_map();
+    pub static ref RNA_ENCODING_MAP: std::collections::HashMap<String, String> = rna_encoding_map();
+    pub static ref RNA_DECODING_MAP: std::collections::HashMap<String, String> = rna_decoding_map();
 }
 
-pub fn dna_encoding_map() -> HashMap<String, String> {
+pub fn rna_encoding_map() -> HashMap<String, String> {
     create_encoding_map()
 }
 
-pub fn dna_decoding_map() -> HashMap<String, String> {
+pub fn rna_decoding_map() -> HashMap<String, String> {
     create_decoding_map()
 }
 
 fn create_encoding_map() -> HashMap<String, String> {
     let mut encoding_map = HashMap::new();
 
-    let bases = ['A', 'G', 'C', 'T', 'N'];
+    let bases = ['A', 'G', 'C', 'U', 'N'];
     let mut non_n_counter = 34; 
     let mut n_counter = 34;
 
@@ -84,15 +84,15 @@ fn create_decoding_map() -> HashMap<String, String> {
 #[cfg(test)]
 mod tests {
 
-    use crate::encoders::dna_to_ascii;
+    use crate::encoders::rna_to_ascii;
 
     #[test]
     fn test_create_encoding_map() {
-        let map = dna_to_ascii::create_encoding_map();
+        let map = rna_to_ascii::create_encoding_map();
 
         assert_eq!(map.len(), 155);
 
-        let bases = ['A', 'G', 'C', 'T', 'N'];
+        let bases = ['A', 'G', 'C', 'U', 'N'];
 
         for &base1 in &bases {
             for &base2 in &bases {
@@ -123,11 +123,11 @@ mod tests {
 
     #[test]
     fn test_create_decoding_map() {
-        let encoding_map = dna_to_ascii::create_encoding_map();
-        let decoding_map = dna_to_ascii::create_decoding_map();
+        let encoding_map = rna_to_ascii::create_encoding_map();
+        let decoding_map = rna_to_ascii::create_decoding_map();
 
         assert_eq!(decoding_map.get(&encoding_map["AAA"]), Some(&"AAA".to_string()));
-        assert_eq!(decoding_map.get(&encoding_map["AGT"]), Some(&"AGT".to_string()));
+        assert_eq!(decoding_map.get(&encoding_map["AGU"]), Some(&"AGU".to_string()));
         assert_eq!(decoding_map.get(&encoding_map["GCC"]), Some(&"GCC".to_string()));
 
         assert_eq!(decoding_map.get(&encoding_map["ANA"]), Some(&"ANA".to_string()));
@@ -135,16 +135,16 @@ mod tests {
         assert_eq!(decoding_map.get(&encoding_map["NNN"]), Some(&"NNN".to_string()));
 
         assert_eq!(decoding_map.get(&encoding_map["AG"]), Some(&"AG".to_string()));
-        assert_eq!(decoding_map.get(&encoding_map["CT"]), Some(&"CT".to_string()));
+        assert_eq!(decoding_map.get(&encoding_map["CU"]), Some(&"CU".to_string()));
 
         assert_eq!(decoding_map.get(&encoding_map["NG"]), Some(&"NG".to_string()));
         assert_eq!(decoding_map.get(&encoding_map["CN"]), Some(&"CN".to_string()));
 
         assert_eq!(decoding_map.get(&encoding_map["A"]), Some(&"A".to_string()));
         assert_eq!(decoding_map.get(&encoding_map["G"]), Some(&"G".to_string()));
-        assert_eq!(decoding_map.get(&encoding_map["T"]), Some(&"T".to_string()));
-
-        assert!(!encoding_map.contains_key(&"U".to_string()));
+        assert_eq!(decoding_map.get(&encoding_map["U"]), Some(&"U".to_string()));
+        
+        assert!(!encoding_map.contains_key(&"T".to_string()));
 
         assert_eq!(decoding_map.get(&encoding_map["N"]), Some(&"N".to_string()));
 

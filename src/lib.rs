@@ -5,17 +5,24 @@ use std::io::{BufReader, BufRead, Write, BufWriter};
 pub mod encoders;
 pub mod errors;
 pub mod processors;
+pub mod mode;
 
-use encoders::dna_to_ascii::{ENCODING_MAP, DECODING_MAP};
+
+use mode::Mode;
+use encoders::Encoder;
 use errors::CompressionError;
 
-fn compress_string(input: &str) -> Result<String, CompressionError> {
+fn compress_string(input: &str, mode: &Mode) -> Result<String, CompressionError> {
+    let encoder = Encoder::new(mode);
+
+    let encoding_map = &encoder.encoding_map();
+
     let input = input.to_uppercase();
     let mut compressed = String::new();
 
     for chunk in input.as_bytes().chunks(3) {
         let key = String::from_utf8(chunk.to_vec()).unwrap();
-        if let Some(encoded_value) = ENCODING_MAP.get(&key) {
+        if let Some(encoded_value) = encoding_map.get(&key) {
             compressed.push_str(&encoded_value.to_string());
         } else {
             return Err(CompressionError::UnknownSequence(key));
@@ -25,7 +32,11 @@ fn compress_string(input: &str) -> Result<String, CompressionError> {
     Ok(compressed)
 }
 
-fn unpack_string(input: &str) -> Result<String, CompressionError> {
+fn unpack_string(input: &str, mode: &Mode) -> Result<String, CompressionError> {
+    let encoder = Encoder::new(mode);
+
+    let decoding_map = &encoder.decoding_map();
+
     let mut unpacked = String::new();
     let mut previous_was_exclamation = false;
 
@@ -42,7 +53,7 @@ fn unpack_string(input: &str) -> Result<String, CompressionError> {
             ch.to_string()
         };
 
-        if let Some(decoded_value) = DECODING_MAP.get(&key) {
+        if let Some(decoded_value) = decoding_map.get(&key) {
             unpacked.push_str(decoded_value);
         } else {
             return Err(CompressionError::UnknownCharacter(ch));
@@ -53,13 +64,13 @@ fn unpack_string(input: &str) -> Result<String, CompressionError> {
 }
 
 
-pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn compress_to_file(input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
     let reader = BufReader::new(input_file);
 
     let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
     let compressed_lines: Vec<_> = lines.par_iter()
-        .map(|line| compress_string(line))
+        .map(|line| compress_string(line, &mode))
         .collect::<Result<_, _>>()?;
 
     let mut output_file = BufWriter::new(File::create(output_file_name)?);
@@ -71,7 +82,7 @@ pub fn compress_to_file(input: &str, output_file_name: &str) -> Result<(), Box<d
     Ok(())
 }
 
-pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn unpack_from_file(input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
 
     let input_file = File::open(input)?;
     let reader: Vec<_> = BufReader::new(input_file).lines().collect();
@@ -81,7 +92,7 @@ pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<d
     reader.par_iter()
           .map(|line| {
               let line = line.as_ref().unwrap();
-              unpack_string(&line)
+              unpack_string(&line, &mode)
           })
           .collect::<Result<Vec<_>, _>>()?
           .into_iter()
@@ -94,11 +105,13 @@ pub fn unpack_from_file(input: &str, output_file_name: &str) -> Result<(), Box<d
 mod tests {
     use super::*;
 
+    const TEST_MODE: Mode = Mode::DNA;
+
     #[test]
     fn test_compress_string() {
         let test_strings = vec!["AAAA", "AC", "AAAACCCGTT", "AGGGGCCCCTTTTAA", ""];
         for s in test_strings {
-            let compressed = compress_string(s).unwrap();
+            let compressed = compress_string(s, &TEST_MODE).unwrap();
             let expected_len = (s.len() + 2) / 3;
             assert_eq!(compressed.len(), expected_len);
         }
@@ -108,7 +121,7 @@ mod tests {
     fn test_unpack_string() {
         let test_strings = vec!["A", "Aq1", "123", "5", ""];
         for s in test_strings {
-            let unpacked = unpack_string(s).unwrap();
+            let unpacked = unpack_string(s, &TEST_MODE).unwrap();
             assert!(unpacked.len() >= s.len());
         }
     }
@@ -123,7 +136,7 @@ mod tests {
         }
 
         let output_file_name = "test_output_compress.txt";
-        compress_to_file(input_file_name, output_file_name).unwrap();
+        compress_to_file(input_file_name, output_file_name, &TEST_MODE).unwrap();
 
         let output_file = File::open(output_file_name).unwrap();
         let reader = BufReader::new(output_file);
@@ -148,7 +161,7 @@ mod tests {
         }
 
         let output_file_name = "test_output_unpack.txt";
-        unpack_from_file(input_file_name, output_file_name).unwrap();
+        unpack_from_file(input_file_name, output_file_name, &TEST_MODE).unwrap();
 
         let output_file = File::open(output_file_name).unwrap();
         let reader = BufReader::new(output_file);
