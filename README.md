@@ -34,6 +34,6 @@ v0.2.1 and earlier the compress and decompress functionalities were running as s
 
 # Feature backlog
 
- - Add compression for RNA sequences.
+ - Add decompression for directories.
  - Add other sequential data formats such as FASTA.
  - GUI for easier backup management.
