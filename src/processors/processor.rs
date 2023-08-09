@@ -1,5 +1,6 @@
 use crate::Mode;
 use crate::{compress_to_file, unpack_from_file};
+use crate::processors::directory_processing::{compress_directory, unpack_directory};
 
 pub trait Processor {
     fn compress(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>>;
@@ -17,6 +18,31 @@ impl Processor for TextProcessor {
         unpack_from_file(input, output_file_name, mode)
     }
 }
+
+pub struct DirectoryProcessor {
+    supported_extensions: Vec<String>,
+}
+
+impl DirectoryProcessor {
+    pub fn new(supported_extensions: Vec<String>) -> Self {
+        Self { supported_extensions }
+    }
+}
+
+impl Processor for DirectoryProcessor {
+    fn compress(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
+        compress_directory(input, output_file_name, mode, &self.supported_extensions)
+            .map_err(|e| e.into())
+}
+
+    fn unpack(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
+        unpack_directory(input, output_file_name, mode, &self.supported_extensions)
+            .map_err(|e| e.into())
+}
+
+}
+
+
 
 #[cfg(test)]
 mod tests {

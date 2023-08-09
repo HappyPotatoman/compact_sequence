@@ -1,19 +1,23 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::io::Result as IoResult;
+use std::error::Error;
 use walkdir::WalkDir;
 use rayon::prelude::*;
+use std::ffi::OsStr;
 
 use crate::Mode;
 
-pub fn compress_directory(input_dir: &str, output_dir: &str, mode: &Mode) -> IoResult<()> {
+pub fn compress_directory(input_dir: &str, output_dir: &str, mode: &Mode, supported_extensions: &[String]) -> Result<(), Box<dyn Error>> {
+
     let input_path = Path::new(input_dir);
     fs::create_dir_all(&output_dir)?;
 
     let files: Vec<PathBuf> = WalkDir::new(input_path)
         .into_iter()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.file_type().is_file())
+        .filter(|entry| {
+            entry.file_type().is_file() && supported_extensions.iter().any(|ext| entry.path().extension() == Some(OsStr::new(ext)))
+        })
         .map(|entry| entry.path().to_owned())
         .collect();
 
@@ -29,14 +33,17 @@ pub fn compress_directory(input_dir: &str, output_dir: &str, mode: &Mode) -> IoR
     Ok(())
 }
 
-pub fn unpack_directory(input_dir: &str, output_dir: &str, mode: &Mode) -> std::io::Result<()> {
+pub fn unpack_directory(input_dir: &str, output_dir: &str, mode: &Mode, supported_extensions: &[String]) -> Result<(), Box<dyn Error>> {
+
     let input_path = Path::new(input_dir);
     std::fs::create_dir_all(&output_dir)?;
 
     let files: Vec<PathBuf> = WalkDir::new(input_path)
         .into_iter()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.file_type().is_file())
+        .filter(|entry| {
+            entry.file_type().is_file() && supported_extensions.iter().any(|ext| entry.path().extension() == Some(OsStr::new(ext)))
+        })
         .map(|entry| entry.path().to_owned())
         .collect();
 
@@ -57,13 +64,14 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Write;
-
+    
     const SAMPLE_DNA_SEQUENCE: &str  = "AAGGCCTTNN";
     const SAMPLE_RNA_SEQUENCE: &str  = "AAGGCCUUNN";
     
     #[test]
-    fn test_dna_compress_and_unpack_directory() -> std::io::Result<()> {
+    fn test_dna_compress_and_unpack_directory() -> Result<(), Box<dyn Error>> {
         const TEST_MODE: Mode = Mode::DNA;
+        let supported_extensions = vec!["txt".to_string()];
         let temp_input_dir = tempfile::tempdir()?;
         let input_dir_str = temp_input_dir.path().to_str().unwrap();
 
@@ -74,11 +82,11 @@ mod tests {
         let mut file = File::create(&file_path)?;
         writeln!(file, "{}", SAMPLE_DNA_SEQUENCE)?;
 
-        compress_directory(input_dir_str, &temp_output_dir_str, &TEST_MODE)?;
+        compress_directory(input_dir_str, &temp_output_dir_str, &TEST_MODE, &supported_extensions)?;
 
         assert!(Path::new(&temp_output_dir_str).join("sample_output.txt").exists());
 
-        unpack_directory(&temp_output_dir_str, &temp_unpacked_dir_str, &TEST_MODE)?;
+        unpack_directory(&temp_output_dir_str, &temp_unpacked_dir_str, &TEST_MODE, &supported_extensions)?;
 
         let unpacked_file_path = Path::new(&temp_unpacked_dir_str).join("sample_output_unpacked.txt");
         assert!(unpacked_file_path.exists());
@@ -90,8 +98,9 @@ mod tests {
 
 
     #[test]
-    fn test_rna_compress_and_unpack_directory() -> std::io::Result<()> {
+    fn test_rna_compress_and_unpack_directory() -> Result<(), Box<dyn Error>> {
         const TEST_MODE: Mode = Mode::RNA;
+        let supported_extensions = vec!["txt".to_string()];
         let temp_input_dir = tempfile::tempdir()?;
         let input_dir_str = temp_input_dir.path().to_str().unwrap();
 
@@ -102,11 +111,11 @@ mod tests {
         let mut file = File::create(&file_path)?;
         writeln!(file, "{}", SAMPLE_RNA_SEQUENCE)?;
 
-        compress_directory(input_dir_str, &temp_output_dir_str, &TEST_MODE)?;
+        compress_directory(input_dir_str, &temp_output_dir_str, &TEST_MODE, &supported_extensions)?;
 
         assert!(Path::new(&temp_output_dir_str).join("sample_output.txt").exists());
 
-        unpack_directory(&temp_output_dir_str, &temp_unpacked_dir_str, &TEST_MODE)?;
+        unpack_directory(&temp_output_dir_str, &temp_unpacked_dir_str, &TEST_MODE, &supported_extensions)?;
 
         let unpacked_file_path = Path::new(&temp_unpacked_dir_str).join("sample_output_unpacked.txt");
         assert!(unpacked_file_path.exists());
