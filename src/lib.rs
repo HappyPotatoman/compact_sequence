@@ -105,38 +105,39 @@ pub fn unpack_from_file(input: &str, output_file_name: &str, mode: &Mode) -> Res
 mod tests {
     use super::*;
 
-    const TEST_MODE: Mode = Mode::DNA;
-
+    const DNA_TEST_MODE: Mode = Mode::DNA;
+    const RNA_TEST_MODE: Mode = Mode::RNA;
+    
     #[test]
-    fn test_compress_string() {
+    fn test_dna_compress_string() {
         let test_strings = vec!["AAAA", "AC", "AAAACCCGTT", "AGGGGCCCCTTTTAA", ""];
         for s in test_strings {
-            let compressed = compress_string(s, &TEST_MODE).unwrap();
+            let compressed = compress_string(s, &DNA_TEST_MODE).unwrap();
             let expected_len = (s.len() + 2) / 3;
             assert_eq!(compressed.len(), expected_len);
         }
     }
 
     #[test]
-    fn test_unpack_string() {
+    fn test_dna_unpack_string() {
         let test_strings = vec!["A", "Aq1", "123", "5", ""];
         for s in test_strings {
-            let unpacked = unpack_string(s, &TEST_MODE).unwrap();
+            let unpacked = unpack_string(s, &DNA_TEST_MODE).unwrap();
             assert!(unpacked.len() >= s.len());
         }
     }
 
     #[test]
-    fn test_compress_to_file() {
+    fn test_dna_compress_to_file() {
         let input_strings = vec!["AAAA", "AC", "AAAACCCGTT", "AGGGGCCCCTTTTAA",""];
-        let input_file_name = "test_input_compress.txt";
+        let input_file_name = "test_input_compress_dna.txt";
         let mut input_file = File::create(input_file_name).unwrap();
         for s in &input_strings {
             writeln!(input_file, "{}", s).unwrap();
         }
 
-        let output_file_name = "test_output_compress.txt";
-        compress_to_file(input_file_name, output_file_name, &TEST_MODE).unwrap();
+        let output_file_name = "test_output_compress_dna.txt";
+        compress_to_file(input_file_name, output_file_name, &DNA_TEST_MODE).unwrap();
 
         let output_file = File::open(output_file_name).unwrap();
         let reader = BufReader::new(output_file);
@@ -152,16 +153,85 @@ mod tests {
     }
 
     #[test]
-    fn test_unpack_from_file() {
+    fn test_dna_unpack_from_file() {
         let input_strings = vec!["A4", "AC", "A4C3G1T2", "AG4C4T4A2"];
-        let input_file_name = "test_input_unpack.txt";
+        let input_file_name = "test_input_unpack_dna.txt";
         let mut input_file = File::create(input_file_name).unwrap();
         for s in &input_strings {
             writeln!(input_file, "{}", s).unwrap();
         }
 
-        let output_file_name = "test_output_unpack.txt";
-        unpack_from_file(input_file_name, output_file_name, &TEST_MODE).unwrap();
+        let output_file_name = "test_output_unpack_dna.txt";
+        unpack_from_file(input_file_name, output_file_name, &DNA_TEST_MODE).unwrap();
+
+        let output_file = File::open(output_file_name).unwrap();
+        let reader = BufReader::new(output_file);
+        let output_lines: Vec<_> = reader.lines().map(|line| line.unwrap()).collect();
+
+        for (input, output) in input_strings.iter().zip(output_lines.iter()) {
+            assert!(output.len() >= input.len());
+        }
+
+        std::fs::remove_file(input_file_name).unwrap();
+        std::fs::remove_file(output_file_name).unwrap();
+    }
+
+    #[test]
+    fn test_rna_compress_string() {
+        let test_strings = vec!["AAAA", "AC", "AAANNNACCCGUU", "AGGNNNGGCCCCUUUAA", ""];
+        for s in test_strings {
+            let compressed = compress_string(s, &RNA_TEST_MODE).unwrap();
+            println!("{}, {}", compressed, s);
+            let expected_len = (s.len() + 2) / 3;
+            assert_eq!(compressed.len(), expected_len);
+        }
+    }
+
+    #[test]
+    fn test_rna_unpack_string() {
+        let test_strings = vec!["A", "Aq1", "123", "5", ""];
+        for s in test_strings {
+            let unpacked = unpack_string(s, &RNA_TEST_MODE).unwrap();
+            assert!(unpacked.len() >= s.len());
+        }
+    }
+
+    #[test]
+    fn test_rna_compress_to_file() {
+        let input_strings = vec!["AAAA", "AC", "AAAACCCGUU", "AGGNNNGGCCCCUUUUAA",""];
+        let input_file_name = "test_input_compress_rna.txt";
+        let mut input_file = File::create(input_file_name).unwrap();
+        for s in &input_strings {
+            writeln!(input_file, "{}", s).unwrap();
+        }
+
+        let output_file_name = "test_output_compress_rna.txt";
+        compress_to_file(input_file_name, output_file_name, &RNA_TEST_MODE).unwrap();
+
+        let output_file = File::open(output_file_name).unwrap();
+        let reader = BufReader::new(output_file);
+        let output_lines: Vec<_> = reader.lines().map(|line| line.unwrap()).collect();
+
+        for (input, output) in input_strings.iter().zip(output_lines.iter()) {
+            let expected_len = (input.len() + 2) / 3;
+            assert_eq!(output.len(), expected_len);
+        }
+
+        std::fs::remove_file(input_file_name).unwrap();
+        std::fs::remove_file(output_file_name).unwrap();
+    }
+
+    #[test]
+    fn test_rna_unpack_from_file() {
+        let input_strings = vec!["A4", "AC", "A4C3G1T2", "AG4C4T4A2"];
+        let input_file_name = "test_input_unpack_rna.txt";
+        let mut input_file = File::create(input_file_name).unwrap();
+        for s in &input_strings {
+            writeln!(input_file, "{}", s).unwrap();
+        }
+
+        let output_file_name = "test_output_unpack_rna.txt";
+        unpack_from_file(input_file_name, output_file_name, &RNA_TEST_MODE).unwrap();
 
         let output_file = File::open(output_file_name).unwrap();
         let reader = BufReader::new(output_file);
@@ -175,4 +245,3 @@ mod tests {
         std::fs::remove_file(output_file_name).unwrap();
     }
 }
-
