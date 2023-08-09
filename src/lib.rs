@@ -305,4 +305,57 @@ mod tests {
         std::fs::remove_file(input_file_name).unwrap();
         std::fs::remove_file(output_file_name).unwrap();
     }
+    
+    #[test]
+    fn test_dna_compress_fasta_to_file() {
+        let input_strings = vec![(">desc1", "AAAA"), (">desc2", "AC"), (">desc3", "AAAACCCGTT"), (">desc4", "AGGGGCCCCTTTTAA")];
+        let input_file_name = "test_input_compress_dna.fasta";
+        let mut input_file = File::create(input_file_name).unwrap();
+        for (desc, seq) in &input_strings {
+            writeln!(input_file, "{}\n{}", desc, seq).unwrap();
+        }
+
+        let output_file_name = "test_output_compress_dna.fasta";
+        compress_fasta_to_file(input_file_name, output_file_name, &DNA_TEST_MODE).unwrap();
+
+        let output_file = File::open(output_file_name).unwrap();
+        let reader = BufReader::new(output_file);
+        let mut output_lines = reader.lines().map(|line| line.unwrap());
+
+        for (desc, seq) in &input_strings {
+            assert_eq!(output_lines.next().unwrap(), *desc);
+
+            let expected_seq_compressed = compress_string(seq, &DNA_TEST_MODE).unwrap();
+            assert_eq!(output_lines.next().unwrap(), expected_seq_compressed);
+        }
+
+        std::fs::remove_file(input_file_name).unwrap();
+        std::fs::remove_file(output_file_name).unwrap();
+    }
+    #[test]
+    fn test_rna_unpack_fasta_from_file() {
+        let input_strings = vec![(">desc1", "A4"), (">desc2", "AC"), (">desc3", "A4C3G1T2"), (">desc4", "AG4C4T4A2")];
+        let input_file_name = "test_input_unpack_rna.fasta";
+        let mut input_file = File::create(input_file_name).unwrap();
+        for (desc, seq) in &input_strings {
+            writeln!(input_file, "{}\n{}", desc, seq).unwrap();
+        }
+
+        let output_file_name = "test_output_unpack_rna.fasta";
+        unpack_fasta_from_file(input_file_name, output_file_name, &RNA_TEST_MODE).unwrap();
+
+        let output_file = File::open(output_file_name).unwrap();
+        let reader = BufReader::new(output_file);
+        let mut output_lines = reader.lines().map(|line| line.unwrap());
+
+        for (desc, seq) in &input_strings {
+            assert_eq!(output_lines.next().unwrap(), *desc);
+
+            let expected_seq_unpacked = unpack_string(seq, &RNA_TEST_MODE).unwrap();
+            assert_eq!(output_lines.next().unwrap(), expected_seq_unpacked);
+        }
+
+        std::fs::remove_file(input_file_name).unwrap();
+        std::fs::remove_file(output_file_name).unwrap();
+    }
 }
