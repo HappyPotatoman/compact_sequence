@@ -8,6 +8,8 @@ usage cargo run -- <input_file or directory> <-u for unpacking compressed data>
 
 # Changelog
 
+0.4.0: Add support for FASTA file format. Changed mapping keys to avoid using ">" for mapping any sequences since it is used in FASTA files to specify a new line.
+
 0.3.2: Add directory unpacking. Define output folders with -o or --output. Refactored the codebase to enable easier addition of new file types.
 
 0.3.1: Add support for RNA sequential data. Add better command line control with StructOpt.
@@ -36,9 +38,11 @@ v0.2.1 and earlier the compress and decompress functionalities were running as s
 
 # Feature backlog
 
- - Add other sequential data formats such as FASTA,
+ - Add multithread support for FASTA processing,
+ - Add support for mixed directory processing,
  - Add ignore non supported files flag when passing in directories,
  - Add debug funtionality for performance testing and timing function execution times,
  - Improve error handling,
  - Check for bottlenecks using a profiler,
+ - Add other sequential data formats such as ...,
  - GUI for easier backup management,
