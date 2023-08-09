@@ -36,6 +36,9 @@ v0.2.1 and earlier the compress and decompress functionalities were running as s
 
 # Feature backlog
 
- - Add decompression for directories.
- - Add other sequential data formats such as FASTA.
- - GUI for easier backup management.
+ - Add other sequential data formats such as FASTA,
+ - Add ignore non supported files flag when passing in directories,
+ - Add debug funtionality for performance testing and timing function execution times,
+ - Improve error handling,
+ - Check for bottlenecks using a profiler,
+ - GUI for easier backup management,
