@@ -1,2 +1,2 @@
-pub mod file_processor;
+pub mod processor;
 pub mod directory_processing;

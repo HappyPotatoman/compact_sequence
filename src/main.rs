@@ -2,7 +2,7 @@ use structopt::StructOpt;
 
 use compact_sequence::mode::Mode;
 
-use compact_sequence::processors::file_processor::{FileProcessor, TextProcessor};
+use compact_sequence::processors::processor::{Processor, TextProcessor};
 
 #[derive(Debug, StructOpt)]
 struct Opt {
@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mode = &opt.mode;
     println!("Running in {:?} mode", mode);
 
-    let processor: Box<dyn FileProcessor> = match input_path {
+    let processor: Box<dyn Processor> = match input_path {
         path if path.ends_with(".txt") => Box::new(TextProcessor),
         _ => return Err("Unsupported file format or invalid path".into()),
     };
