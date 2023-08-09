@@ -19,7 +19,6 @@ fn test_compress_and_unpack() {
         writeln!(file, "{}", test_input).unwrap();
     }
 
-
     compact_sequence::compress_to_file(input_file_name, compressed_file_name, &TEST_MODE).unwrap();
     
     compact_sequence::unpack_from_file(compressed_file_name, unpacked_file_name, &TEST_MODE).unwrap();
