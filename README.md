@@ -8,7 +8,7 @@ usage cargo run -- <input_file or directory> <-u for unpacking compressed data>
 
 # Changelog
 
-0.3.2: Add directory unpacking. Define output folders with -o or --output.
+0.3.2: Add directory unpacking. Define output folders with -o or --output. Refactored the codebase to enable easier addition of new file types.
 
 0.3.1: Add support for RNA sequential data. Add better command line control with StructOpt.
 
