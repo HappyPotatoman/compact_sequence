@@ -1,11 +1,14 @@
 use structopt::StructOpt;
+use std::path::Path;
+use compact_sequence::file_extensions::*;
 
 use compact_sequence::mode::Mode;
 
 use compact_sequence::processors::processor::{
+    DirectoryProcessor,
+    FastaProcessor,
     Processor,
     TextProcessor, 
-    DirectoryProcessor,
 };
 
 #[derive(Debug, StructOpt)]
@@ -27,9 +30,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mode = &opt.mode;
     println!("Running in {:?} mode", mode);
 
-    let processor: Box<dyn Processor> = match input_path {
-        path if path.ends_with(".txt") => Box::new(TextProcessor),
-        path if path.ends_with('/') || path.ends_with('\\') => Box::new(DirectoryProcessor::new(vec!["txt".to_string()])),
+    let path = Path::new(input_path);
+    let processor: Box<dyn Processor> = match path.extension().and_then(|s| s.to_str()) {
+        Some(ext) if is_fasta_extension(ext) => Box::new(FastaProcessor),
+        Some(ext) if is_text_extension(ext) => Box::new(TextProcessor),
+        _ if path.is_dir() => Box::new(DirectoryProcessor::new(vec!["txt".to_string()])),
         _ => return Err("Unsupported file format or invalid path".into()),
     };
 

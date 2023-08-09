@@ -1,5 +1,10 @@
 use crate::Mode;
-use crate::{compress_to_file, unpack_from_file};
+use crate::{
+    compress_to_file, 
+    unpack_from_file,
+    compress_fasta_to_file,
+    unpack_fasta_from_file,
+};
 use crate::processors::directory_processing::{compress_directory, unpack_directory};
 
 pub trait Processor {
@@ -33,15 +38,26 @@ impl Processor for DirectoryProcessor {
     fn compress(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
         compress_directory(input, output_file_name, mode, &self.supported_extensions)
             .map_err(|e| e.into())
-}
+    }
 
     fn unpack(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
         unpack_directory(input, output_file_name, mode, &self.supported_extensions)
             .map_err(|e| e.into())
-}
+    }
 
 }
 
+pub struct FastaProcessor;
+
+impl Processor for FastaProcessor {
+    fn compress(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
+        compress_fasta_to_file(input, output_file_name, mode)
+    }
+
+    fn unpack(&self, input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
+        unpack_fasta_from_file(input, output_file_name, mode)
+    }
+}
 
 
 #[cfg(test)]
