@@ -29,10 +29,16 @@ fn create_encoding_map() -> HashMap<String, String> {
                     let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
                     encoding_map.insert(key, encoded_value);
                     n_counter += 1;
+                    if n_counter == 62 {
+                        n_counter += 1
+                    }
                 } else {
                     let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
                     encoding_map.insert(key, encoded_value);
                     non_n_counter += 1;
+                    if non_n_counter == 62 {
+                        non_n_counter += 1
+                    }
                 }
             }
         }
@@ -46,10 +52,16 @@ fn create_encoding_map() -> HashMap<String, String> {
                 let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
                 encoding_map.insert(key, encoded_value);
                 n_counter += 1;
+                if n_counter == 62 {
+                    n_counter += 1
+                }
             } else {
                 let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
                 encoding_map.insert(key, encoded_value);
                 non_n_counter += 1;
+                if non_n_counter == 62 {
+                    non_n_counter += 1
+                }
             }
         }
     }
@@ -60,10 +72,16 @@ fn create_encoding_map() -> HashMap<String, String> {
             let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
             encoding_map.insert(key, encoded_value);
             n_counter += 1;
+            if n_counter == 62 {
+                n_counter += 1
+            }
         } else {
             let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
             encoding_map.insert(key, encoded_value);
             non_n_counter += 1;
+            if non_n_counter == 62 {
+                non_n_counter += 1
+            }
         }
     }
 
@@ -149,5 +167,17 @@ mod tests {
         assert_eq!(decoding_map.get(&encoding_map["N"]), Some(&"N".to_string()));
 
         assert_eq!(decoding_map.get("z"), None);
+    }
+
+    #[test]
+    fn test_no_greater_than_character_in_keys() {
+        let encoding_map = dna_to_ascii::create_encoding_map();
+        let decoding_map = dna_to_ascii::create_decoding_map();
+        for key in encoding_map.keys() {
+            assert!(!key.contains('>'), "The key '{}' should not contain the character '>'", key);
+        }
+        for key in decoding_map.keys() {
+            assert!(!key.contains('>'), "The key '{}' should not contain the character '>'", key);
+        }
     }
 }
