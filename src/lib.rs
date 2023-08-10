@@ -11,7 +11,7 @@ pub mod file_extensions;
 
 use mode::Mode;
 use encoders::Encoder;
-use errors::{CompressionError, FastaCompressionError};
+use errors::{CompressionError, FastaCompressionError, FastaUnpackingError};
 
 fn compress_string(input: &str, mode: &Mode) -> Result<String, CompressionError> {
     let encoder = Encoder::new(mode);
@@ -137,10 +137,10 @@ fn unpack_fasta_from_file(input: &str, output_file_name: &str, mode: &Mode) -> R
     let input_file = File::open(input)?;
     let lines: Vec<String> = BufReader::new(input_file).lines().collect::<Result<_, _>>()?;
 
-    let output_lines: Result<Vec<String>, _> =
+    let output_lines: Result<Vec<String>, FastaUnpackingError> =
         lines.par_iter().try_fold(
             || Vec::new(),
-            |mut acc, line| -> Result<Vec<String>, _> {
+            |mut acc, line| -> Result<Vec<String>, FastaUnpackingError> {
                 if line.starts_with('>') {
                     acc.push(line.clone());
                 } else {
@@ -151,11 +151,11 @@ fn unpack_fasta_from_file(input: &str, output_file_name: &str, mode: &Mode) -> R
             },
         ).try_reduce(
             || Vec::new(),
-            |mut acc, x| {
+            |mut acc, x| -> Result<Vec<String>, FastaUnpackingError> {
                 acc.extend(x);
                 Ok(acc)
             },
-        )?;
+        );
 
     let mut output_file = BufWriter::new(File::create(output_file_name)?);
     for line in output_lines? {

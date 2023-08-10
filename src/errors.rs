@@ -33,3 +33,21 @@ impl From<CompressionError> for FastaCompressionError{
         FastaCompressionError(Box::new(err))
     }
 }
+
+#[derive(Debug)]
+pub struct FastaUnpackingError(Box<dyn std::error::Error + Send>);
+
+impl std::fmt::Display for FastaUnpackingError{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::error::Error for FastaUnpackingError{}
+
+impl From<CompressionError> for FastaUnpackingError{
+    fn from(err: CompressionError) -> Self {
+        FastaUnpackingError(Box::new(err))
+    }
+}
+
