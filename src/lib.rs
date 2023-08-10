@@ -133,37 +133,37 @@ fn compress_fasta_to_file(input: &str, output_file_name: &str, mode: &Mode) -> R
     Ok(())
 }
 
-
 fn unpack_fasta_from_file(input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
-    let reader = BufReader::new(input_file);
+    let lines: Vec<String> = BufReader::new(input_file).lines().collect::<Result<_, _>>()?;
 
-    let output_file = File::create(output_file_name)?;
-    let mut writer = BufWriter::new(output_file);
+    let output_lines: Result<Vec<String>, _> =
+        lines.par_iter().try_fold(
+            || Vec::new(),
+            |mut acc, line| -> Result<Vec<String>, _> {
+                if line.starts_with('>') {
+                    acc.push(line.clone());
+                } else {
+                    let unpacked_line = unpack_string(&line, &mode)?; 
+                    acc.push(unpacked_line);
+                }
+                Ok(acc)
+            },
+        ).try_reduce(
+            || Vec::new(),
+            |mut acc, x| {
+                acc.extend(x);
+                Ok(acc)
+            },
+        )?;
 
-    let mut sequence_line = String::new();
-    for line in reader.lines() {
-        let line = line?;
-        if line.starts_with('>') {
-            if !sequence_line.is_empty() {
-                let unpacked_line = unpack_string(&sequence_line, &mode)?;
-                writeln!(writer, "{}", unpacked_line)?;
-                sequence_line.clear();
-            }
-            writeln!(writer, "{}", line)?;
-            continue;
-        }
-        sequence_line.push_str(&line);
-    }
-
-    if !sequence_line.is_empty() {
-        let unpacked_line = unpack_string(&sequence_line, &mode)?;
-        writeln!(writer, "{}", unpacked_line)?;
+    let mut output_file = BufWriter::new(File::create(output_file_name)?);
+    for line in output_lines? {
+        writeln!(output_file, "{}", line)?;
     }
 
     Ok(())
 }
-
 
 #[cfg(test)]
 mod tests {
