@@ -29,14 +29,14 @@ fn create_encoding_map() -> HashMap<String, String> {
                     let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
                     encoding_map.insert(key, encoded_value);
                     n_counter += 1;
-                    if n_counter == 62 {
+                    if n_counter == 62 || n_counter == 92 {
                         n_counter += 1
                     }
                 } else {
                     let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
                     encoding_map.insert(key, encoded_value);
                     non_n_counter += 1;
-                    if non_n_counter == 62 {
+                    if non_n_counter == 62 || non_n_counter == 92{
                         non_n_counter += 1
                     }
                 }
@@ -52,14 +52,14 @@ fn create_encoding_map() -> HashMap<String, String> {
                 let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
                 encoding_map.insert(key, encoded_value);
                 n_counter += 1;
-                if n_counter == 62 {
+                if n_counter == 62 || n_counter == 92 {
                     n_counter += 1
                 }
             } else {
                 let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
                 encoding_map.insert(key, encoded_value);
                 non_n_counter += 1;
-                if non_n_counter == 62 {
+                if non_n_counter == 62 || non_n_counter == 92 {
                     non_n_counter += 1
                 }
             }
@@ -72,14 +72,14 @@ fn create_encoding_map() -> HashMap<String, String> {
             let encoded_value = format!("!{}", std::char::from_u32(n_counter).unwrap_or('_'));
             encoding_map.insert(key, encoded_value);
             n_counter += 1;
-            if n_counter == 62 {
+            if n_counter == 62 || n_counter == 92 {
                 n_counter += 1
             }
         } else {
             let encoded_value = std::char::from_u32(non_n_counter).unwrap_or('_').to_string();
             encoding_map.insert(key, encoded_value);
             non_n_counter += 1;
-            if non_n_counter == 62 {
+            if non_n_counter == 62 || non_n_counter == 92 {
                 non_n_counter += 1
             }
         }
