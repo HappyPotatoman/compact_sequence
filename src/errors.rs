@@ -16,3 +16,20 @@ impl fmt::Display for CompressionError {
 }
 
 impl std::error::Error for CompressionError {}
+
+#[derive(Debug)]
+pub struct FastaCompressionError(Box<dyn std::error::Error + Send>);
+
+impl std::fmt::Display for FastaCompressionError{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::error::Error for FastaCompressionError{}
+
+impl From<CompressionError> for FastaCompressionError{
+    fn from(err: CompressionError) -> Self {
+        FastaCompressionError(Box::new(err))
+    }
+}

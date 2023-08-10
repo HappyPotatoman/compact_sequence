@@ -11,7 +11,7 @@ pub mod file_extensions;
 
 use mode::Mode;
 use encoders::Encoder;
-use errors::CompressionError;
+use errors::{CompressionError, FastaCompressionError};
 
 fn compress_string(input: &str, mode: &Mode) -> Result<String, CompressionError> {
     let encoder = Encoder::new(mode);
@@ -105,31 +105,34 @@ pub fn unpack_from_file(input: &str, output_file_name: &str, mode: &Mode) -> Res
 fn compress_fasta_to_file(input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
     let reader = BufReader::new(input_file);
+    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
+
+    let output_lines: Result<Vec<String>, FastaCompressionError> =
+    lines.par_iter().try_fold(
+        || Vec::new(),
+        |mut acc, line| -> Result<Vec<String>, FastaCompressionError> {
+            if line.starts_with('>') {
+                acc.push(line.clone());
+            } else {
+                let compressed_line = compress_string(&line, &mode)?;
+                acc.push(compressed_line);
+            }
+            Ok(acc)
+        },
+    ).try_reduce(
+        || Vec::new(),
+        |mut acc, x| -> Result<Vec<String>, FastaCompressionError> {
+            acc.extend(x);
+            Ok(acc)
+        },
+    );
 
     let mut output_file = BufWriter::new(File::create(output_file_name)?);
-
-    let mut sequence_line = String::new();
-    for line in reader.lines() {
-        let line = line?;
-        if line.starts_with('>') {
-            if !sequence_line.is_empty() {
-                let compressed_line = compress_string(&sequence_line, &mode)?;
-                writeln!(output_file, "{}", compressed_line)?;
-                sequence_line.clear();
-            }
-            writeln!(output_file, "{}", line)?;
-            continue;
-        }
-        sequence_line.push_str(&line);
-    }
-
-    if !sequence_line.is_empty() {
-        let compressed_line = compress_string(&sequence_line, &mode)?;
-        writeln!(output_file, "{}", compressed_line)?;
-    }
+    output_lines?.iter().for_each(|line| writeln!(output_file, "{}", line).unwrap());
 
     Ok(())
 }
+
 
 fn unpack_fasta_from_file(input: &str, output_file_name: &str, mode: &Mode) -> Result<(), Box<dyn std::error::Error>> {
     let input_file = File::open(input)?;
@@ -332,6 +335,7 @@ mod tests {
         std::fs::remove_file(input_file_name).unwrap();
         std::fs::remove_file(output_file_name).unwrap();
     }
+
     #[test]
     fn test_rna_unpack_fasta_from_file() {
         let input_strings = vec![(">desc1", "A4"), (">desc2", "AC"), (">desc3", "A4C3G1T2"), (">desc4", "AG4C4T4A2")];

@@ -1,9 +1,8 @@
 use structopt::StructOpt;
 use std::path::Path;
+
 use compact_sequence::file_extensions::*;
-
 use compact_sequence::mode::Mode;
-
 use compact_sequence::processors::processor::{
     DirectoryProcessor,
     FastaProcessor,
